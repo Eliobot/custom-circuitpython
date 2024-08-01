@@ -106,7 +106,7 @@ Purpose: This file contains the configuration settings for the ESP-IDF build sys
 In this file, the following changes have been made:
 
 - CONFIG_ESPTOOLPY_FLASHSIZE_4MB: This option says that the flash size is 4MB.
-- CONFIG_ESPTOOLPY_FLASHSIZE: This option sets the flash size to 4MB.
+- CONFIG_ESPTOOLPY_FLASHSIZE: This option sets the flashsize to 4MB.
 
 - CONFIG_PARTITION_TABLE_CUSTOM_FILENAME: This option specifies the custom partition table filename.
 - CONFIG_PARTITION_TABLE_FILENAME: This option specifies the partition table filename.
@@ -115,3 +115,13 @@ In this file, the following changes have been made:
 
 In this file we use a custom partition table because it left us some space for more frozen modules.
 
+
+# How to flash with repl ON 
+
+go to supervisor/filesystem.c and change the line 137 that create the code.py file to :
+
+```c
+        MAKE_FILE_WITH_OPTIONAL_CONTENTS(&vfs_fat->fatfs, "/boot.py", "import board\nimport storage\n\n# Attribution de l'ecriture : True = Mass Storage, False = REPL\nstorage.remount(\"/\", False)\n");
+```
+
+it will create a boot.py file that will remount the filesystem in REPL mode when the board is powered on.
