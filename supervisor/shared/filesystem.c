@@ -134,7 +134,9 @@ bool filesystem_init(bool create_allowed, bool force_create) {
         make_empty_file(&vfs_fat->fatfs, "/settings.toml");
         #endif
         // make a sample code.py file
-        MAKE_FILE_WITH_OPTIONAL_CONTENTS(&vfs_fat->fatfs, "/boot.py", "import board\nimport storage\n\n# Attribution de l'ecriture : True = Mass Storage, False = REPL\nstorage.remount(\"/\", False)\n");
+        MAKE_FILE_WITH_OPTIONAL_CONTENTS(&vfs_fat->fatfs, "/code.py", "print(\"Hello World!\")\n");
+
+        //MAKE_FILE_WITH_OPTIONAL_CONTENTS(&vfs_fat->fatfs, "/boot.py", "import board\nimport storage\n\n# Attribution de l'ecriture : True = Mass Storage, False = REPL\nstorage.remount("/", False)\n");
 
         // create empty lib directory
         res = f_mkdir(&vfs_fat->fatfs, "/lib");
