@@ -1,5 +1,10 @@
 # Build CircuitPython for Eliobot
 
+Eliobot need 2 different builds of CircuitPython, one for that flash with repl ON and one for that flash with repl OFF.
+
+Repl on for flashing from the web interface and repl off for flashing from the mass storage with Eliobot-Programmer.
+
+
 1. Read the [CircuitPython BUILDING.md](BUILDING.md) guide and follow the instructions to build CircuitPython.
 
 2. before the "make BOARD" step of the build process, go to "ports/espressif/esp-idf/" and run :
@@ -44,6 +49,42 @@ example :
 git tag -a 9.1.2
 git push origin 9.1.2
 ```
+
+If you want to keep using the same tag name, you need to delete the tag before creating a new one :
+
+```bash
+git tag -d <tag_name>
+git push origin :refs/tags/<tag_name>
+
+git tag -a <tag_name>
+git push origin <tag_name>
+```
+
+example :
+
+```bash
+git tag -d 9.1.2
+git push origin :refs/tags/9.1.2
+
+git tag -a 9.1.2
+git push origin 9.1.2
+```
+
+It will push the last commit you made to the repository with the tag name you specified.
+
+
+# How to flash with repl ON 
+
+go to supervisor/filesystem.c and change the line 137 that create the code.py file to :
+
+```c
+        //MAKE_FILE_WITH_OPTIONAL_CONTENTS(&vfs_fat->fatfs, "/code.py", "print(\"Hello World!\")\n");
+
+        MAKE_FILE_WITH_OPTIONAL_CONTENTS(&vfs_fat->fatfs, "/boot.py", "import board\nimport storage\n\n# Attribution de l'ecriture : True = Mass Storage, False = REPL\nstorage.remount(\"/\", False)\n");
+```
+
+It will create a boot.py file that will remount the filesystem in REPL mode when the board is powered on.
+Don't forget to commitand tag those changes before building the firmware to make a clean build.
 
 # elio_eliobot specific files
 
@@ -114,14 +155,3 @@ In this file, the following changes have been made:
 - CONFIG_LWIP_LOCAL_HOSTNAME: This option sets the local hostname for the device.
 
 In this file we use a custom partition table because it left us some space for more frozen modules.
-
-
-# How to flash with repl ON 
-
-go to supervisor/filesystem.c and change the line 137 that create the code.py file to :
-
-```c
-        MAKE_FILE_WITH_OPTIONAL_CONTENTS(&vfs_fat->fatfs, "/boot.py", "import board\nimport storage\n\n# Attribution de l'ecriture : True = Mass Storage, False = REPL\nstorage.remount(\"/\", False)\n");
-```
-
-it will create a boot.py file that will remount the filesystem in REPL mode when the board is powered on.
